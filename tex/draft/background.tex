@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage{biblatex}
+
+\title{Thesis Background}
+\author{Zhengyi Chen}
+\date{\today}
+
+\addbibresource{../main.bib}
+\addbibresource{background.bib}
+
+\begin{document}
+\maketitle
+
+% Phil Karlton's famous quote about the 2 hard problems in CS here, maybe.
+
+The problem of cache replacement is general to computer systems of all scales and topologies: 
+topologically massive systems, such as cellular stations\cite{GWHSZ.2014.CacheReplAsMDP-QLearning} 
+and CDNs\cites{EHOFK.2020.IBM-LRUvsFIFO}{!BGW.2010.CDN}{KD.2002.Akamai_CoordCacheRepl}, and  
+data-path level implementations for processors\cites{QJPSE.2007.DIP}{JTSE.2010.RRIP}{SYS.2021.RLR} 
+alike requires good solutions to maintain and maximize application performance 
+to various levels of granularity. On the other hand, the set of feasible/performant solutions 
+(i.e., cache replacement policies) to one system may or may not be inspiring to performance 
+improvement on another system of different scale, objectives, tasks, constrained by a 
+(mostly) different context of available inputs, metadata, etc. 
+
+We propose a framework for dynamic cache-replacement-strategy selection that balances computation 
+cost, optimality, and working-set estimation for each strategy while incurring minimal performance 
+penalties for a shared-kernel cooperative Distributed Shared Memory system. (We identify \dots)
+
+\section[1]{Existing Cache Replacement Strategies}
+\subsection[1.1]{LRU-derived Algorithms}
+\subsection[1.2]{FIFO-derived Algorithms}
+\subsection[1.3]{Cache Replacement in Processors}
+\subsection[1.4]{Machine Learning and Heuristics}
+
+\section[2]{The Cache Replacement Problem}
+
+\section[3]{Page Replacement in (SMP or?) Linux}
+%-- But LRU_GEN is interop-ed with an array of other systems, 
+% how could we trivially implement alternative page replacement algorithms with maximum feature 
+% compliance? 
+% 
+
+% Cache replacement strategies local to its own resources, for example CPU cache line replacement stategies, may not optimally perform cache eviction and 
+% replacement for CDNs which (1) center \textit{freqency} over \textit{recency} and (2) could 
+% cooperate to utilize a nearby cache with small additional transfer cost\cite{KD.2002.Akamai_CoordCacheRepl}. 
+% Orthogonally, cache replacement strategies that perform well on one task might perform less well on 
+% another, as implied by \cite{SYS.2021.RLR} among others. 
+
+% this is the case for Linux's \textit{multi-gen LRU} page replacement algorithm which 
+% by default prioritizes memory access via page table to be stored in cache over those via file 
+% descriptors (though it dynamically self-adjusts)\cite{Z.2022.Linux_LRU_GEN} -- the kernel developers 
+% assume that the former is costlier upon page fault. This is well and good for programs with 
+
+% This is not to say that some amount of "technological transfer" from cache replacement strategies 
+% intended for one specific setting could not be 
+
+% A performant cache replacement strategy, relative to its hosting
+% system, needs to strike balance between optimality and the necessary computation needed to make a 
+% replacement/eviction decision. 
+
+\printbibliography
+\end{document}
