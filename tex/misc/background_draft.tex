@@ -1,0 +1,142 @@
+\documentclass{article}
+\usepackage{biblatex}
+
+\addbibresource{background_draft.bib}
+
+\begin{document}
+% \chapter{Backgrounds}
+Recent studies has shown a reinvigorated interest in disaggregted/distributed
+shared memory systems since the 1990s. While large-scale cluster systems
+predominantly make up the mainstream
+The interplay between (page) replacement policy and runtime performance of
+distributed shared memory systems has not been properly explored.
+
+\section{Overview of Distributed Shared Memory}
+
+A striking feature in the study of distributed shared memory (DSM) systems is the
+non-uniformity of the terminologies used to describe overlapping study interests.
+The majority of contributions to DSM study come from the 1990s, for example
+\textbf{[Treadmark, Millipede, Munin, Shiva, etc.]}. These DSM systems attempt to
+leverage kernel system calls to allow for user-level DSM over ethernet NICs. While
+these systems provide a strong theoretical basis for today's majority-software
+DSM systems and applications that expose a \emph{(partitioned) global address space},
+they were nevertheless constrained by the limitations in NIC transfer rate and
+bandwidth, and the concept of DSM failed to take off (relative to cluster computing).
+
+Improvement in NIC bandwidth and transfer rate allows for applications that expose
+global address space, as well as RDMA technologies that leverage single-writer
+protocols over hierarchical memory nodes. \textbf{[GAS and PGAS (Partitioned GAS)
+technologies for example Openshmem, OpenMPI, Cray Chapel, etc. that leverage
+specially-linked memory sections and \texttt{/dev/shm} to abstract away RDMA access]}.
+
+
+Contemporary works on DSM systems focus more on leveraging hardware advancements
+to provide fast and/or seamless software support. Adrias \cite{Masouros_etal.Adrias.2023},
+for example, implements a complex system for memory disaggregation over multiple
+compute nodes connected via the \textit{ThymesisFlow}-based RDMA fabric, where
+they observed significant performance improvements over existing data-intensive
+processing frameworks, for example APACHE Spark, Memcached, and Redis, over
+no-disaggregation (i.e., using node-local memory only, similar to cluster computing)
+systems.
+
+\subsection{Move Data to Process, or Move Process to Data?}
+(TBD -- The former is costly for data-intensive computation, but the latter may
+be impossible for certain tasks, and greatly hardens the replacement problem.)
+
+\section{Replacement Policy}
+
+In general, three variants of replacement strategies have been proposed for either
+generic cache block replacement problems, or specific use-cases where contextual
+factors can facilitate more efficient cache resource allocation:
+\begin{itemize}
+    \item General-Purpose Replacement Algorithms, for example LRU.
+    \item Cost-Model Analysis
+    \item Probabilistic and Learned Algorithms
+\end{itemize}
+
+\subsection{General-Purpose Replacement Algorithms}
+Practically speaking, in the general case of the cache replacement problem,
+we desire to predict the re-reference interval of a cache block
+\cite{Jaleel_etal.RRIP.2010}. This follows from the Belady's algorithm -- the
+optimal case for the \emph{ideal} replacement problem occurs when, at eviction
+time, the entry with the highest re-reference interval is replaced. Under this
+framework, therefore, the commonly-used LRU algorithm could be seen as a heuristic
+where the re-reference interval for each entry is predicted to be immediate.
+Fortunately, memory access traces of real computer systems agree with this
+tendency due to spatial locality \textbf{[source]}. (Real systems are complex,
+however, and there are other behaviors...) On the other hand, the hypothetical
+LFU algorithm is a heuristic that captures frequency. \textbf{[\dots]} While the
+textbook LFU algorithm suffers from needing to maintain a priority-queue for
+frequency analysis, it was nevertheless useful for keeping recurrent (though
+non-recent) blocks from being evicted from the cache \textbf{[source]}.
+
+Derivatives from the LRU algorithm attempts to balance between frequency and
+recency. \textbf{[Talk about LRU-K, LRU-2Q, LRU-MQ, LIRS, ARC here \dots]}
+
+Advancements in parallel/concurrent systems had led to a rediscovery of the benefits
+of using FIFO-derived replacement policies over their LRU/LFU counterparts, as
+book-keeping operations on the uniform LRU/LFU state proves to be (1) difficult
+for synchronization and, relatedly, (2) cache-unfriendly \cite{Yang_etal.FIFO-LPQD.2023}.
+\textbf{[Talk about FIFO, FIFO-CLOCK, FIFO-CAR, FIFO-QuickDemotion, and Dueling
+CLOCK here \dots]}
+
+Finally, real-life experiences have shown the need to reduce CPU time in practical
+applications, owing from one simple observation -- during the fetch-execution
+cycle, all processors perform blocking I/O on the memory. A cache-unfriendly
+design, despite its hypothetical optimality, could nevertheless degrade the performance
+of a system during low-memory situations. In fact, this proves to be the driving
+motivation behind Linux's transition away from the old LRU-2Q page replacement
+algorithm into the more coarse-grained Multi-generation LRU algorithm, which has
+been mainlined since v6.1.
+
+\subsection{Cost-Model Analysis}
+The ideal case for the replacement problem fails to account for invalidation of
+cache entries. It also assumes for a uniform, dual-hierarchical cache-store model
+that is insufficient to capture the heterogeneity of today's massively-parallel,
+distributed systems. High-speed network interfaces are capable of exposing RDMA
+interfaces between computer nodes, which amount to almost twice as fast RDMA transfer
+when compared to swapping over the kernel I/O stack, while software that bypass
+the kernel I/O stack is capable of stretching the bandwidth advantage even more
+(source). This creates an interesting network topology between RDMA-enabled nodes,
+where, in addition to swapping at low-memory situations, the node may opt to ``swap''
+or simply drop the physical page in order to lessen the cost of page misses.
+
+\textbf{[Talk about GreedyDual, GDSF, BCL, Amortization]}
+
+Traditionally, replacement policies based on cost-model analysis were utilized in
+content-delivery networks, which had different consistency models compared to
+finer-grained systems. HTTP servers need not pertain to strong consistency models,
+as out-of-date information is considered permissible, and single-writer scenarios
+are common. Consequently, most replacement policies for static content servers,
+while making strong distinction towards network topology, fails to concern for the
+cases where an entry might become invalidated, let along multi-writer protocols.
+One early paper \cite{LaRowe_Ellis.Repl_NUMA.1991} examines the efficacy of using
+page fault frequency as an indicator of preference towards working set inclusion
+(which I personally think is highly flawed -- to be explained). Another paper
+\cite{Aguilar_Leiss.Coherence-Replacement.2006} explores the possibility of taking
+page fault into consideration for eviction, but fails to go beyond the obvious
+implication that pages that have been faulted \emph{must} be evicted.
+
+The concept of cost models for RDMA and NUMA systems are relatively underdeveloped,
+too. (Expand)
+
+\subsection{Probabilistic and Learned Algorithms for Cache Replacement}
+Finally, machine learning techniques and low-cost probabilistic approaches have
+been applied on the ideal cache replacement problem with some level of success.
+\textbf{[Talk about LeCaR, CACHEUS here]}.
+
+\section{Cache Coherence and Consistency in DSM Systems}
+
+(I need to read more into this. Most of the contribution comes from CPU caches,
+less so for DSM systems.) \textbf{[Talk about JIAJIA and Treadmark's coherence
+protocol.]}
+
+Consistency and communication protocols naturally affect the cost for each faulted
+memory access \dots
+
+\textbf{[Talk about directory, transactional, scope, and library cache coherence,
+which allow for multi-casted communications at page fault but all with different
+levels of book-keeping.]}
+
+\printbibliography
+\end{document}

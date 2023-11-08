@@ -1,0 +1,89 @@
+@article{Jaleel_etal.RRIP.2010,
+  title={High performance cache replacement using re-reference interval prediction (RRIP)},
+  author={Jaleel, Aamer and Theobald, Kevin B and Steely Jr, Simon C and Emer, Joel},
+  journal={ACM SIGARCH computer architecture news},
+  volume={38},
+  number={3},
+  pages={60--71},
+  year={2010},
+  publisher={ACM New York, NY, USA}
+}
+
+@inproceedings{Yang_etal.FIFO-LPQD.2023,
+  title={FIFO can be Better than LRU: the Power of Lazy Promotion and Quick Demotion},
+  author={Yang, Juncheng and Qiu, Ziyue and Zhang, Yazhuo and Yue, Yao and Rashmi, KV},
+  booktitle={Proceedings of the 19th Workshop on Hot Topics in Operating Systems},
+  pages={70--79},
+  year={2023}
+}
+
+@inproceedings{Shan_Tsai_Zhang.DSPM.2017,
+author = {Shan, Yizhou and Tsai, Shin-Yeh and Zhang, Yiying},
+title = {Distributed Shared Persistent Memory},
+year = {2017},
+isbn = {9781450350280},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3127479.3128610},
+doi = {10.1145/3127479.3128610},
+abstract = {Next-generation non-volatile memories (NVMs) will provide byte addressability, persistence, high density, and DRAM-like performance. They have the potential to benefit many datacenter applications. However, most previous research on NVMs has focused on using them in a single machine environment. It is still unclear how to best utilize them in distributed, datacenter environments.We introduce Distributed Shared Persistent Memory (DSPM), a new framework for using persistent memories in distributed data-center environments. DSPM provides a new abstraction that allows applications to both perform traditional memory load and store instructions and to name, share, and persist their data.We built Hotpot, a kernel-level DSPM system that provides low-latency, transparent memory accesses, data persistence, data reliability, and high availability. The key ideas of Hotpot are to integrate distributed memory caching and data replication techniques and to exploit application hints. We implemented Hotpot in the Linux kernel and demonstrated its benefits by building a distributed graph engine on Hotpot and porting a NoSQL database to Hotpot. Our evaluation shows that Hotpot outperforms a recent distributed shared memory system by 1.3\texttimes{} to 3.2\texttimes{} and a recent distributed PM-based file system by 1.5\texttimes{} to 3.0\texttimes{}.},
+booktitle = {Proceedings of the 2017 Symposium on Cloud Computing},
+pages = {323–337},
+numpages = {15},
+keywords = {distributed shared memory, persistent memory},
+location = {Santa Clara, California},
+series = {SoCC '17}
+}
+
+@article{LaRowe_Ellis.Repl_NUMA.1991,
+title = {Page placement policies for NUMA multiprocessors},
+journal = {Journal of Parallel and Distributed Computing},
+volume = {11},
+number = {2},
+pages = {112-129},
+year = {1991},
+issn = {0743-7315},
+doi = {https://doi.org/10.1016/0743-7315(91)90117-R},
+url = {https://www.sciencedirect.com/science/article/pii/074373159190117R},
+author = {Richard P. LaRowe and Carla Schlatter Ellis},
+abstract = {In many parallel applications, the size of the program's data exceeds even the very large amount of main memory available on large-scale multiprocessors. Virtual memory, in the sense of a transparent management of the main/secondary memory hierarchy, is a natural solution. The replacement, fetch, and placement policies used in uniprocessor paging systems need to be reexamined in light of the differences in the behavior of parallel computations and in the memory architectures of multiprocessors. In particular, we investigate the impact of page placement in nonuniform memory access time (NUMA) shared memory MIMD machines. We experimentally evaluate several paging algorithms that incorporate different approaches to the placement issue. Under certain workload assumptions, our results show that placement algorithms that are strongly biased toward local frame allocation but are able to borrow remote frames can reduce the number of page faults over strictly local allocation. The increased cost of memory operations due to the extra remote accesses is more than compensated for by the savings resulting from the reduction in demand fetches, effectively reducing the computation completion time for these programs without having adverse effects on the performance of “typical” NUMA programs. We also discuss some early results obtained from an actual kernel implementation of one of our page placement algorithms.}
+}
+
+@article{Aguilar_Leiss.Coherence-Replacement.2006,
+author = {J. Aguilar and E.L. Leiss},
+title = {A Coherence-Replacement Protocol For Web Proxy Cache Systems},
+journal = {International Journal of Computers and Applications},
+volume = {28},
+number = {1},
+pages = {12-18},
+year = {2006},
+publisher = {Taylor & Francis},
+doi = {10.1080/1206212X.2006.11441783},
+
+
+URL = {
+
+        https://doi.org/10.1080/1206212X.2006.11441783
+
+
+
+},
+eprint = {
+
+        https://doi.org/10.1080/1206212X.2006.11441783
+
+
+
+}
+
+}
+
+@inproceedings{Masouros_etal.Adrias.2023,
+  title={Adrias: Interference-Aware Memory Orchestration for Disaggregated Cloud Infrastructures},
+  author={Masouros, Dimosthenis and Pinto, Christian and Gazzetti, Michele and Xydis, Sotirios and Soudris, Dimitrios},
+  booktitle={2023 IEEE International Symposium on High-Performance Computer Architecture (HPCA)},
+  pages={855--869},
+  year={2023},
+  organization={IEEE}
+}
+
