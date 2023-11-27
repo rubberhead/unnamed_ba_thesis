@@ -1,29 +1,136 @@
 \documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[dvipsnames]{xcolor}
 \usepackage{biblatex}
 
 \addbibresource{background_draft.bib}
 
 \begin{document}
-% \chapter{Backgrounds}
-Recent studies has shown a reinvigorated interest in disaggregated/distributed
-shared memory systems last seen in the 1990s. While large-scale cluster systems
-remain predominantly the solution for massively parallel computation, it is known
-to 
-The interplay between (page) replacement policy and runtime performance of
-distributed shared memory systems has not been properly explored.
+Though large-scale cluster systems remain the dominant solution for request and
+data-level parallelism \cite{BOOK.Hennessy_Patterson.CArch.2011},
+there have been a resurgence towards applying HPC techniques (e.g., DSM) for more
+efficient heterogeneous computation with more tightly-coupled heterogeneous nodes
+providing (hardware) acceleration for one another \cite{Cabezas_etal.GPU-SM.2015}
+\textcolor{red}{[ADD MORE CITATIONS]} Within the scope of one node,
+\emph{heterogeneous memory management (HMM)} enables the use of OS-controlled,
+unified memory view into the entire memory landscape across attached devices
+\cite{WEB.NVIDIA.Harris.Unified_Memory_CUDA.2017}, all while using the same libc
+function calls as one would with SMP programming, the underlying complexities of
+memory ownership and locality managed by the OS kernel.
 
-\section{Overview of Distributed Shared Memory}
+Nevertheless, while HMM promises a distributed shared memory approach towards
+exposing CPU and peripheral memory, applications (drivers and front-ends) that
+exploit HMM to provide ergonomic programming models remain fragmented and
+narrowly-focused. Existing efforts in exploiting HMM in Linux predominantly focus
+on exposing global address space abstraction to GPU memory -- a largely
+non-coordinated effort surrounding both \textit{in-tree} and proprietary code
+\cites{WEB.LWN.Corbet.HMM_GPL_woes.2018}{WEB.Phoronix..HMM_Search_Results.2023}.
+Limited effort have been done on incorporating HMM into other variants of
+accelerators in various system topologies.
 
-A striking feature in the study of distributed shared memory (DSM) systems is the
-non-uniformity of the terminologies used to describe overlapping study interests.
-The majority of contributions to DSM study come from the 1990s, for example
-\textbf{[Treadmark, Millipede, Munin, Shiva, etc.]}. These DSM systems attempt to
-leverage kernel system calls to allow for user-level DSM over ethernet NICs. While
-these systems provide a strong theoretical basis for today's majority-software
-DSM systems and applications that expose a \emph{(partitioned) global address space},
-they were nevertheless constrained by the limitations in NIC transfer rate and
-bandwidth, and the concept of DSM failed to take off (relative to cluster computing).
+Orthogonally, allocation of hardware accelerator resources in a cluster computing
+environment becomes difficult when the required hardware acceleration resources
+of one workload cannot be easily determined and/or isolated. Within a cluster
+system there may exist a large amount of general-purpose worker nodes and limited
+amount of hardware-accelerated nodes. Further, it is possible that every workload
+performed on this cluster wishes for hardware acceleration from time to time,
+but never for a relatively long time. Many job scheduling mechanisms within a cluster
+\emph{move data near computation} by migrating the entire job/container between
+general-purpose and accelerator nodes \cites{Rodriguez_etal.HPC_Cluster_Migration.2019}
+{Oh_Kim.Container_Migration.2018}. This way of migration naturally incurs
+large overhead -- accelerator nodes which strictly perform in-memory computing
+without ever needing to touch the container's filesystem should not have to install
+the entire filesystem locally, for starters. Moreover, must \emph{all} computations be
+near data? \cite{Masouros_etal.Adrias.2023}, for example, shows that RDMA over
+fast network interfaces ($25 \times 8$Gbps) result negligible impact on tail latencies
+but high impact on throughput when bandwidth is maximized.
 
+This thesis paper builds upon an ongoing research effort in implementing a
+tightly coupled cluster where HMM abstractions allow for transparent RDMA access
+from accelerator nodes to local data and data migration near computation, focusing
+on the effect of replacement policies on balancing the cost between near-data and
+far-data computation between home node and accelerator node. \textcolor{red}{
+Specifically, this paper explores the possibility of implementing shared page
+movement between home and accelerator nodes to enable efficient memory over-commit
+without the I/O-intensive swapping overhead.}
+
+\textcolor{red}{The rest of the chapter is structured as follows\dots}
+
+\section{Experiences from Software DSM}
+The majority of contributions to the study of software DSM systems come from the
+1990s \cites{Amza_etal.Treadmarks.1996}{Carter_Bennett_Zwaenepoel.Munin.1991}
+{Itzkovitz_Schuster_Shalev.Millipede.1998}{Hu_Shi_Tang.JIAJIA.1999}. These
+developments follow from the success of the Stanford DASH project in the late
+1980s -- a hardware distributed shared memory (i.e., NUMA) implementation of a
+multiprocessor that first proposed the \textit{directory-based protocol} for
+cache coherence, which stores the ownership information of cache lines to reduce
+unnecessary communication that prevented SMP processors from scaling out
+\cite{Lenoski_etal.Stanford_DASH.1992}.
+
+While developments in hardware DSM materialized into a universal approach to
+cache-coherence in contemporary many-core processors (e.g., \textit{Ampere
+Altra}\cite{WEB.Ampere..Ampere_Altra_Datasheet.2023}), software DSMs in clustered
+computing languished in favor of loosely-coupled nodes performing data-parallel
+computation, communicating via message-passing. Bandwidth limitations with the
+network interfaces of the late 1990s was insufficient to support the high traffic
+incurred by DSM and its programming model \cites{Werstein_Pethick_Huang.PerfAnalysis_DSM_MPI.2003}
+{Lu_etal.MPI_vs_DSM_over_cluster.1995}.
+
+New developments in network interfaces provides much improved bandwidth and latency
+compared to ethernet in the 1990s. RDMA-capable NICs have been shown to improve
+the training efficiency sixfold compared to distributed TensorFlow via RPC,
+scaling positively over non-distributed training \cite{Jia_etal.Tensorflow_over_RDMA.2018}.
+Similar results have been observed for Spark\cite{Lu_etal.Spark_over_RDMA.2014}
+\textcolor{red}{and what?}. Consequently, there have been a resurgence of interest
+in software DSM systems and their corresponding programming models
+\cites{Nelson_etal.Grappa_DSM.2015}{Cai_etal.Distributed_Memory_RDMA_Cached.2018}.
+
+% Different to DSM-over-RDMA, we try to expose RDMA as device with HMM capability
+% i.e., we do it in kernel as opposed to in userspace. Accelerator node can access
+% local node's shared page like a DMA device do so via HMM.
+
+\subsection{Munin: Multiple Consistency Protocols}
+\textit{Munin}\cite{Carter_Bennett_Zwaenepoel.Munin.1991} is one of the older
+developments in software DSM systems. The authors of Munin identify that
+\textit{false-sharing}, occurring due to multiple processors writing to different
+offsets of the same page triggering invalidations, is strongly detrimental to the
+performance of shared-memory systems. To combat this, Munin exposes annotations
+as part of its programming model to facilitate multiple consistency protocols on
+top of release consistency. An immutable shared memory object across readers,
+for example, can be safely copied without concern for coherence between processors.
+On the other hand, the \textit{write-shared} annotation explicates that a memory
+object is written by multiple processors without synchronization -- i.e., the
+programmer guarantees that only false-sharing occurs within this granularity.
+Annotations such as these explicitly disables subsets of consistency procedures
+to reduce communication in the network fabric, thereby improving the performance
+of the DSM system.
+
+Perhaps most importantly, experiences from Munin show that \emph{restricting the
+flexibility of programming model can lead to more performant coherence models}, as
+\textcolor{teal}{corroborated} by the now-foundational
+\textit{Resilient Distributed Database} paper \cite{Zaharia_etal.RDD.2012} --
+which powered many now-popular scalable data processing frameworks such as
+\textit{Hadoop MapReduce}\cite{WEB.APACHE..Apache_Hadoop.2023} and
+\textit{APACHE Spark}\cite{WEB.APACHE..Apache_Spark.2023}. ``To achieve fault
+tolerance efficiently, RDDs provide a restricted form of shared memory
+[based on]\dots transformations rather than\dots updates to shared state''
+\cite{Zaharia_etal.RDD.2012}. This allows for the use of transformation logs to
+cheaply synchronize states between unshared address spaces -- a much desired
+property for highly scalable, loosely-coupled clustered systems.
+
+\subsection{Treadmarks: Multi-Writer Protocol}
+\textit{Treadmarks}\cite{Amza_etal.Treadmarks.1996} is a software DSM developed in
+1996
+
+% The majority of contributions to DSM study come from the 1990s, for example
+% \textbf{[Treadmark, Millipede, Munin, Shiva, etc.]}. These DSM systems attempt to
+% leverage kernel system calls to allow for user-level DSM over ethernet NICs. While
+% these systems provide a strong theoretical basis for today's majority-software
+% DSM systems and applications that expose a \emph{(partitioned) global address space},
+% they were nevertheless constrained by the limitations in NIC transfer rate and
+% bandwidth, and the concept of DSM failed to take off (relative to cluster computing).
+
+\section{HPC and Partitioned Global Address Space}
 Improvement in NIC bandwidth and transfer rate allows for applications that expose
 global address space, as well as RDMA technologies that leverage single-writer
 protocols over hierarchical memory nodes. \textbf{[GAS and PGAS (Partitioned GAS)
@@ -39,6 +146,8 @@ they observed significant performance improvements over existing data-intensive
 processing frameworks, for example APACHE Spark, Memcached, and Redis, over
 no-disaggregation (i.e., using node-local memory only, similar to cluster computing)
 systems.
+
+\subsection{Programming Model}
 
 \subsection{Move Data to Process, or Move Process to Data?}
 (TBD -- The former is costly for data-intensive computation, but the latter may

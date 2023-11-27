@@ -1,89 +1,278 @@
 @article{Jaleel_etal.RRIP.2010,
-  title={High performance cache replacement using re-reference interval prediction (RRIP)},
-  author={Jaleel, Aamer and Theobald, Kevin B and Steely Jr, Simon C and Emer, Joel},
-  journal={ACM SIGARCH computer architecture news},
-  volume={38},
-  number={3},
-  pages={60--71},
-  year={2010},
+  title        = {High performance cache replacement using re-reference interval prediction (RRIP)},
+  author       = {Jaleel, Aamer and Theobald, Kevin B and Steely Jr, Simon C and Emer, Joel},
+  year         = 2010,
+  journal      = {ACM SIGARCH computer architecture news},
+  publisher    = {ACM New York, NY, USA},
+  volume       = 38,
+  number       = 3,
+  pages        = {60--71}
+}
+@inproceedings{Yang_etal.FIFO-LPQD.2023,
+  title        = {FIFO can be Better than LRU: the Power of Lazy Promotion and Quick Demotion},
+  author       = {Yang, Juncheng and Qiu, Ziyue and Zhang, Yazhuo and Yue, Yao and Rashmi, KV},
+  year         = 2023,
+  booktitle    = {Proceedings of the 19th Workshop on Hot Topics in Operating Systems},
+  pages        = {70--79}
+}
+@inproceedings{Shan_Tsai_Zhang.DSPM.2017,
+  title        = {Distributed Shared Persistent Memory},
+  author       = {Shan, Yizhou and Tsai, Shin-Yeh and Zhang, Yiying},
+  year         = 2017,
+  booktitle    = {Proceedings of the 2017 Symposium on Cloud Computing},
+  location     = {Santa Clara, California},
+  publisher    = {Association for Computing Machinery},
+  address      = {New York, NY, USA},
+  series       = {SoCC '17},
+  pages        = {323–337},
+  doi          = {10.1145/3127479.3128610},
+  isbn         = 9781450350280,
+  url          = {https://doi.org/10.1145/3127479.3128610},
+  abstract     = {Next-generation non-volatile memories (NVMs) will provide byte addressability, persistence, high density, and DRAM-like performance. They have the potential to benefit many datacenter applications. However, most previous research on NVMs has focused on using them in a single machine environment. It is still unclear how to best utilize them in distributed, datacenter environments.We introduce Distributed Shared Persistent Memory (DSPM), a new framework for using persistent memories in distributed data-center environments. DSPM provides a new abstraction that allows applications to both perform traditional memory load and store instructions and to name, share, and persist their data.We built Hotpot, a kernel-level DSPM system that provides low-latency, transparent memory accesses, data persistence, data reliability, and high availability. The key ideas of Hotpot are to integrate distributed memory caching and data replication techniques and to exploit application hints. We implemented Hotpot in the Linux kernel and demonstrated its benefits by building a distributed graph engine on Hotpot and porting a NoSQL database to Hotpot. Our evaluation shows that Hotpot outperforms a recent distributed shared memory system by 1.3\texttimes{} to 3.2\texttimes{} and a recent distributed PM-based file system by 1.5\texttimes{} to 3.0\texttimes{}.},
+  numpages     = 15,
+  keywords     = {distributed shared memory, persistent memory}
+}
+@article{LaRowe_Ellis.Repl_NUMA.1991,
+  title        = {Page placement policies for NUMA multiprocessors},
+  author       = {Richard P. LaRowe and Carla Schlatter Ellis},
+  year         = 1991,
+  journal      = {Journal of Parallel and Distributed Computing},
+  volume       = 11,
+  number       = 2,
+  pages        = {112--129},
+  doi          = {https://doi.org/10.1016/0743-7315(91)90117-R},
+  issn         = {0743-7315},
+  url          = {https://www.sciencedirect.com/science/article/pii/074373159190117R},
+  abstract     = {In many parallel applications, the size of the program's data exceeds even the very large amount of main memory available on large-scale multiprocessors. Virtual memory, in the sense of a transparent management of the main/secondary memory hierarchy, is a natural solution. The replacement, fetch, and placement policies used in uniprocessor paging systems need to be reexamined in light of the differences in the behavior of parallel computations and in the memory architectures of multiprocessors. In particular, we investigate the impact of page placement in nonuniform memory access time (NUMA) shared memory MIMD machines. We experimentally evaluate several paging algorithms that incorporate different approaches to the placement issue. Under certain workload assumptions, our results show that placement algorithms that are strongly biased toward local frame allocation but are able to borrow remote frames can reduce the number of page faults over strictly local allocation. The increased cost of memory operations due to the extra remote accesses is more than compensated for by the savings resulting from the reduction in demand fetches, effectively reducing the computation completion time for these programs without having adverse effects on the performance of “typical” NUMA programs. We also discuss some early results obtained from an actual kernel implementation of one of our page placement algorithms.}
+}
+@article{Aguilar_Leiss.Coherence-Replacement.2006,
+  title        = {A Coherence-Replacement Protocol For Web Proxy Cache Systems},
+  author       = {J. Aguilar and E.L. Leiss},
+  year         = 2006,
+  journal      = {International Journal of Computers and Applications},
+  publisher    = {Taylor & Francis},
+  volume       = 28,
+  number       = 1,
+  pages        = {12--18},
+  doi          = {10.1080/1206212X.2006.11441783},
+  url          = {https://doi.org/10.1080/1206212X.2006.11441783},
+  eprint       = {https://doi.org/10.1080/1206212X.2006.11441783}
+}
+@inproceedings{Masouros_etal.Adrias.2023,
+  title        = {Adrias: Interference-Aware Memory Orchestration for Disaggregated Cloud Infrastructures},
+  author       = {Masouros, Dimosthenis and Pinto, Christian and Gazzetti, Michele and Xydis, Sotirios and Soudris, Dimitrios},
+  year         = 2023,
+  booktitle    = {2023 IEEE International Symposium on High-Performance Computer Architecture (HPCA)},
+  pages        = {855--869},
+  organization = {IEEE}
+}
+@book{BOOK.Hennessy_Patterson.CArch.2011,
+  title        = {Computer architecture: a quantitative approach},
+  author       = {Hennessy, John L and Patterson, David A},
+  year         = 2011,
+  publisher    = {Elsevier}
+}
+@inproceedings{Cabezas_etal.GPU-SM.2015,
+  title        = {GPU-SM: shared memory multi-GPU programming},
+  author       = {Cabezas, Javier and Jord{\`a}, Marc and Gelado, Isaac and Navarro, Nacho and Hwu, Wen-mei},
+  year         = 2015,
+  booktitle    = {Proceedings of the 8th Workshop on General Purpose Processing using GPUs},
+  pages        = {13--24}
+}
+@misc{WEB.NVIDIA.Harris.Unified_Memory_CUDA.2017,
+  title        = {Unified memory for cuda beginners},
+  author       = {Harris, Mark},
+  year         = 2017,
+  journal      = {Unified Memory for CUDA Beginners},
+  publisher    = {NVIDIA},
+  url          = {https://developer.nvidia.com/blog/unified-memory-cuda-beginners/}
+}
+@article{Khokhar_etal.HetComputingVision.1993,
+  title        = {Heterogeneous computing: Challenges and opportunities},
+  author       = {Khokhar, Ashfaq A. and Prasanna, Viktor K. and Shaaban, Muhammad E. and Wang, C-L},
+  year         = 1993,
+  journal      = {Computer},
+  publisher    = {IEEE},
+  volume       = 26,
+  number       = 6,
+  pages        = {18--27}
+}
+@misc{WEB.LWN.Corbet.HMM_GPL_woes.2018,
+  title        = {Heterogeneous memory management meets EXPORT\_SYMBOL\_GPL()},
+  author       = {Corbet, Jonathan},
+  year         = 2018,
+  journal      = {LWN.net},
+  publisher    = {LWN.net},
+  url          = {https://lwn.net/Articles/757124/}
+}
+@misc{WEB.Phoronix..HMM_Search_Results.2023,
+  journal      = {Heterogeneous Memory Management - Phoronix},
+  publisher    = {Phoronix},
+  url          = {https://www.phoronix.com/search/Heterogeneous%20Memory%20Management}
+}
+@inproceedings{narayanan2020heterogeneity,
+  title        = {$\{$Heterogeneity-Aware$\}$ cluster scheduling policies for deep learning workloads},
+  author       = {Narayanan, Deepak and Santhanam, Keshav and Kazhamiaka, Fiodar and Phanishayee, Amar and Zaharia, Matei},
+  year         = 2020,
+  booktitle    = {14th USENIX Symposium on Operating Systems Design and Implementation (OSDI 20)},
+  pages        = {481--498}
+}
+@article{Rodriguez_etal.HPC_Cluster_Migration.2019,
+  title        = {Job migration in hpc clusters by means of checkpoint/restart},
+  author       = {Rodr{\'\i}guez-Pascual, Manuel and Cao, Jiajun and Mor{\'\i}{\~n}igo, Jos{\'e} A and Cooperman, Gene and Mayo-Garc{\'\i}a, Rafael},
+  year         = 2019,
+  journal      = {The Journal of Supercomputing},
+  publisher    = {Springer},
+  volume       = 75,
+  pages        = {6517--6541}
+}
+@inproceedings{Oh_Kim.Container_Migration.2018,
+  title        = {Stateful Container Migration employing Checkpoint-based Restoration for Orchestrated Container Clusters},
+  author       = {Oh, SeungYong and Kim, JongWon},
+  year         = 2018,
+  booktitle    = {2018 International Conference on Information and Communication Technology Convergence (ICTC)},
+  volume       = {},
+  number       = {},
+  pages        = {25--30},
+  doi          = {10.1109/ICTC.2018.8539562}
+}
+@article{Amza_etal.Treadmarks.1996,
+  title={Treadmarks: Shared memory computing on networks of workstations},
+  author={Amza, Cristiana and Cox, Alan L and Dwarkadas, Sandhya and Keleher, Pete and Lu, Honghui and Rajamony, Ramakrishnan and Yu, Weimin and Zwaenepoel, Willy},
+  journal={Computer},
+  volume={29},
+  number={2},
+  pages={18--28},
+  year={1996},
+  publisher={IEEE}
+}
+@article{Carter_Bennett_Zwaenepoel.Munin.1991,
+  title={Implementation and performance of Munin},
+  author={Carter, John B and Bennett, John K and Zwaenepoel, Willy},
+  journal={ACM SIGOPS Operating Systems Review},
+  volume={25},
+  number={5},
+  pages={152--164},
+  year={1991},
   publisher={ACM New York, NY, USA}
 }
-
-@inproceedings{Yang_etal.FIFO-LPQD.2023,
-  title={FIFO can be Better than LRU: the Power of Lazy Promotion and Quick Demotion},
-  author={Yang, Juncheng and Qiu, Ziyue and Zhang, Yazhuo and Yue, Yao and Rashmi, KV},
-  booktitle={Proceedings of the 19th Workshop on Hot Topics in Operating Systems},
-  pages={70--79},
-  year={2023}
+@article{Itzkovitz_Schuster_Shalev.Millipede.1998,
+  title={Thread migration and its applications in distributed shared memory systems},
+  author={Itzkovitz, Ayal and Schuster, Assaf and Shalev, Lea},
+  journal={Journal of Systems and Software},
+  volume={42},
+  number={1},
+  pages={71--87},
+  year={1998},
+  publisher={Elsevier}
 }
-
-@inproceedings{Shan_Tsai_Zhang.DSPM.2017,
-author = {Shan, Yizhou and Tsai, Shin-Yeh and Zhang, Yiying},
-title = {Distributed Shared Persistent Memory},
-year = {2017},
-isbn = {9781450350280},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3127479.3128610},
-doi = {10.1145/3127479.3128610},
-abstract = {Next-generation non-volatile memories (NVMs) will provide byte addressability, persistence, high density, and DRAM-like performance. They have the potential to benefit many datacenter applications. However, most previous research on NVMs has focused on using them in a single machine environment. It is still unclear how to best utilize them in distributed, datacenter environments.We introduce Distributed Shared Persistent Memory (DSPM), a new framework for using persistent memories in distributed data-center environments. DSPM provides a new abstraction that allows applications to both perform traditional memory load and store instructions and to name, share, and persist their data.We built Hotpot, a kernel-level DSPM system that provides low-latency, transparent memory accesses, data persistence, data reliability, and high availability. The key ideas of Hotpot are to integrate distributed memory caching and data replication techniques and to exploit application hints. We implemented Hotpot in the Linux kernel and demonstrated its benefits by building a distributed graph engine on Hotpot and porting a NoSQL database to Hotpot. Our evaluation shows that Hotpot outperforms a recent distributed shared memory system by 1.3\texttimes{} to 3.2\texttimes{} and a recent distributed PM-based file system by 1.5\texttimes{} to 3.0\texttimes{}.},
-booktitle = {Proceedings of the 2017 Symposium on Cloud Computing},
-pages = {323–337},
-numpages = {15},
-keywords = {distributed shared memory, persistent memory},
-location = {Santa Clara, California},
-series = {SoCC '17}
+@inproceedings{Hu_Shi_Tang.JIAJIA.1999,
+  title={JIAJIA: A software DSM system based on a new cache coherence protocol},
+  author={Hu, Weiwu and Shi, Weisong and Tang, Zhimin},
+  booktitle={High-Performance Computing and Networking: 7th International Conference, HPCN Europe 1999 Amsterdam, The Netherlands, April 12--14, 1999 Proceedings 7},
+  pages={461--472},
+  year={1999},
+  organization={Springer}
 }
-
-@article{LaRowe_Ellis.Repl_NUMA.1991,
-title = {Page placement policies for NUMA multiprocessors},
-journal = {Journal of Parallel and Distributed Computing},
-volume = {11},
-number = {2},
-pages = {112-129},
-year = {1991},
-issn = {0743-7315},
-doi = {https://doi.org/10.1016/0743-7315(91)90117-R},
-url = {https://www.sciencedirect.com/science/article/pii/074373159190117R},
-author = {Richard P. LaRowe and Carla Schlatter Ellis},
-abstract = {In many parallel applications, the size of the program's data exceeds even the very large amount of main memory available on large-scale multiprocessors. Virtual memory, in the sense of a transparent management of the main/secondary memory hierarchy, is a natural solution. The replacement, fetch, and placement policies used in uniprocessor paging systems need to be reexamined in light of the differences in the behavior of parallel computations and in the memory architectures of multiprocessors. In particular, we investigate the impact of page placement in nonuniform memory access time (NUMA) shared memory MIMD machines. We experimentally evaluate several paging algorithms that incorporate different approaches to the placement issue. Under certain workload assumptions, our results show that placement algorithms that are strongly biased toward local frame allocation but are able to borrow remote frames can reduce the number of page faults over strictly local allocation. The increased cost of memory operations due to the extra remote accesses is more than compensated for by the savings resulting from the reduction in demand fetches, effectively reducing the computation completion time for these programs without having adverse effects on the performance of “typical” NUMA programs. We also discuss some early results obtained from an actual kernel implementation of one of our page placement algorithms.}
+@inproceedings {Zaharia_etal.RDD.2012,
+  author = {Matei Zaharia and Mosharaf Chowdhury and Tathagata Das and Ankur Dave and Justin Ma and Murphy McCauly and Michael J. Franklin and Scott Shenker and Ion Stoica},
+  title = {Resilient Distributed Datasets: A {Fault-Tolerant} Abstraction for {In-Memory} Cluster Computing},
+  booktitle = {9th USENIX Symposium on Networked Systems Design and Implementation (NSDI 12)},
+  year = {2012},
+  isbn = {978-931971-92-8},
+  address = {San Jose, CA},
+  pages = {15--28},
+  url = {https://www.usenix.org/conference/nsdi12/technical-sessions/presentation/zaharia},
+  publisher = {USENIX Association},
+  month = apr
 }
-
-@article{Aguilar_Leiss.Coherence-Replacement.2006,
-author = {J. Aguilar and E.L. Leiss},
-title = {A Coherence-Replacement Protocol For Web Proxy Cache Systems},
-journal = {International Journal of Computers and Applications},
-volume = {28},
-number = {1},
-pages = {12-18},
-year = {2006},
-publisher = {Taylor & Francis},
-doi = {10.1080/1206212X.2006.11441783},
-
-
-URL = {
-
-        https://doi.org/10.1080/1206212X.2006.11441783
-
-
-
-},
-eprint = {
-
-        https://doi.org/10.1080/1206212X.2006.11441783
-
-
-
+@misc{WEB.APACHE..Apache_Hadoop.2023,
+  url={https://hadoop.apache.org/},
+  journal={Apache Hadoop},
+  publisher={The APACHE Software Foundation}
 }
-
+@misc{WEB.APACHE..Apache_Spark.2023,
+  url={https://spark.apache.org/},
+  journal={Apache SparkTM - Unified Engine for large-scale data analytics},
+  publisher={The APACHE Software Foundation}
 }
-
-@inproceedings{Masouros_etal.Adrias.2023,
-  title={Adrias: Interference-Aware Memory Orchestration for Disaggregated Cloud Infrastructures},
-  author={Masouros, Dimosthenis and Pinto, Christian and Gazzetti, Michele and Xydis, Sotirios and Soudris, Dimitrios},
-  booktitle={2023 IEEE International Symposium on High-Performance Computer Architecture (HPCA)},
-  pages={855--869},
-  year={2023},
+@article{Lenoski_etal.Stanford_DASH.1992,
+  title={The stanford dash multiprocessor},
+  author={Lenoski, Daniel and Laudon, James and Gharachorloo, Kourosh and Weber, W-D and Gupta, Anoop and Hennessy, John and Horowitz, Mark and Lam, Monica S.},
+  journal={Computer},
+  volume={25},
+  number={3},
+  pages={63--79},
+  year={1992},
+  publisher={IEEE}
+}
+@misc{WEB.Ampere..Ampere_Altra_Datasheet.2023,
+  url={https://uawartifacts.blob.core.windows.net/upload-files/Altra_Max_Rev_A1_DS_v1_15_20230809_b7cdce449e_424d129849.pdf},
+  journal={Ampere Altra Max Rev A1 64-Bit Multi-Core Processor Datasheet},
+  publisher={Ampere Computing}
+}
+@article{Bell_Gray.HPC_is_Cluster.2002,
+  title={What's next in high-performance computing?},
+  author={Bell, Gordon and Gray, Jim},
+  journal={Communications of the ACM},
+  volume={45},
+  number={2},
+  pages={91--95},
+  year={2002},
+  publisher={ACM New York, NY, USA}
+}
+@inproceedings{Werstein_Pethick_Huang.PerfAnalysis_DSM_MPI.2003,
+  title={A performance comparison of dsm, pvm, and mpi},
+  author={Werstein, Paul and Pethick, Mark and Huang, Zhiyi},
+  booktitle={Proceedings of the Fourth International Conference on Parallel and Distributed Computing, Applications and Technologies},
+  pages={476--482},
+  year={2003},
   organization={IEEE}
 }
+@inproceedings{Lu_etal.MPI_vs_DSM_over_cluster.1995,
+  title={Message passing versus distributed shared memory on networks of workstations},
+  author={Lu, Honghui and Dwarkadas, Sandhya and Cox, Alan L and Zwaenepoel, Willy},
+  booktitle={Supercomputing'95: Proceedings of the 1995 ACM/IEEE Conference on Supercomputing},
+  pages={37--37},
+  year={1995},
+  organization={IEEE}
+}
+@article{Jia_etal.Tensorflow_over_RDMA.2018,
+  title={Improving the performance of distributed tensorflow with RDMA},
+  author={Jia, Chengfan and Liu, Junnan and Jin, Xu and Lin, Han and An, Hong and Han, Wenting and Wu, Zheng and Chi, Mengxian},
+  journal={International Journal of Parallel Programming},
+  volume={46},
+  pages={674--685},
+  year={2018},
+  publisher={Springer}
+}
+@inproceedings{Lu_etal.Spark_over_RDMA.2014,
+  title={Accelerating spark with RDMA for big data processing: Early experiences},
+  author={Lu, Xiaoyi and Rahman, Md Wasi Ur and Islam, Nusrat and Shankar, Dipti and Panda, Dhabaleswar K},
+  booktitle={2014 IEEE 22nd Annual Symposium on High-Performance Interconnects},
+  pages={9--16},
+  year={2014},
+  organization={IEEE}
+}
+@article{Cai_etal.Distributed_Memory_RDMA_Cached.2018,
+  title={Efficient distributed memory management with RDMA and caching},
+  author={Cai, Qingchao and Guo, Wentian and Zhang, Hao and Agrawal, Divyakant and Chen, Gang and Ooi, Beng Chin and Tan, Kian-Lee and Teo, Yong Meng and Wang, Sheng},
+  journal={Proceedings of the VLDB Endowment},
+  volume={11},
+  number={11},
+  pages={1604--1617},
+  year={2018},
+  publisher={VLDB Endowment}
+}
+@inproceedings{Nelson_etal.Grappa_DSM.2015,
+  title={$\{$Latency-Tolerant$\}$ software distributed shared memory},
+  author={Nelson, Jacob and Holt, Brandon and Myers, Brandon and Briggs, Preston and Ceze, Luis and Kahan, Simon and Oskin, Mark},
+  booktitle={2015 USENIX Annual Technical Conference (USENIX ATC 15)},
+  pages={291--305},
+  year={2015}
+}
+
+
+
+
 
