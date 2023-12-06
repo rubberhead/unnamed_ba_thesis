@@ -1,3 +1,4 @@
+% Yeah "slices" whatever lol
 \documentclass{beamer}
 \usepackage[style=authortitle-comp]{biblatex}
 \usepackage[export]{adjustbox}
@@ -11,6 +12,129 @@
 \begin{document}
 % Title page
 \frame{\titlepage}
+
+% Page -2
+\begin{frame}
+    \frametitle{
+        Literature Review: (Shan, Tsai, \& Zhang. 2017\footcite{shan2017distributed})
+    }
+    \begin{itemize}
+        \item {
+            Concerns with the sharing of persistent memory --
+            \begin{itemize}
+                \item More or less similar to sharing regular memory, but\dots
+                \item Data replication is key $\Rightarrow$ Multiple data provider.
+            \end{itemize}
+        }
+        \item {
+            Supports both Multi-Writer Multi-Reader and Multi-Writer Single-Writer Protocols
+            \begin{itemize}
+                \item MRMW ``support(s) great parallelism''
+                \item MRSW enables ``stronger consistency''
+            \end{itemize}
+        }
+        \item {
+            Makes distinction between 3 variants of nodes:
+            \begin{itemize}
+                \item Commit Node -- Node who wishes to commit changes wrt. the system.
+                \item Owner Node -- Node(s) who act as data provider for latest page content.
+                \item Manager Node -- Node who provide (serialized) write access control to page.
+            \end{itemize}
+        }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{
+        Literature Review: (Shan, Tsai, \& Zhang. 2017\footcite{shan2017distributed})
+    }
+    \begin{itemize}
+        \item {
+            For data replication and fault tolerance, necessitates:
+            \begin{enumerate}
+                \item Commit status logging (akin to journaled file system)
+                \item Persistent Commit ID
+                \item \textbf{Required} deg. of replication -- each ON shares to $N$ nodes.
+            \end{enumerate}
+        }
+        \item {
+            Fault tolerance is out of this thesis's scope. However\dots
+            \begin{itemize}
+                \item Prob. no need for requiring any degree of data replication.
+                \item Dropping data replication req. $\Rightarrow$ no need for replication comms.
+                \item Commit status logging \& persistent CID can be helpful \& should not introduce additional comms.
+            \end{itemize}
+        }
+        \item {
+            MRSW provides ``simpler and more efficient'' commits than MRMW -- no concurrent
+            commits to same shared memory object exists.
+            \begin{itemize}
+                \item Also makes more sense from a CPU-accelerator dichotomy outlook (ofc. wrt. this thesis's system).
+            \end{itemize}
+        }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{MRSW: (Shan, Tsai, \& Zhang. 2017\footcite{shan2017distributed})}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{w12_slides_resources/dspm.fig8.png}
+    \end{figure}
+    Note: CN: Node 1, MN: Node 2, ON: Node 2 \& 3. Node 4 may or may not already
+    share the committed page prior to acquire.
+\end{frame}
+
+% Page 0
+\begin{frame}
+    \frametitle{Literature Review: (Ramesh. 2023)}
+    \begin{itemize}
+        \item Popcorn-derived.
+        \item {
+            Sequential consistency, MRSW protocol offloaded onto sNIC:
+            \begin{itemize}
+                \item DSM protocol processor implemented on sNIC FPGA core.
+                \item sNIC \textbf{keeps track of memory ownership, status, R/W permissions} at page level granularity.
+                \item Removes the need for distinct memory management nodes.
+                \item (i.e., the sNIC IS the memory management node -- except of course allocation).
+            \end{itemize}
+        }
+        \item {
+            Similar idea occurred in \textit{Concordia}\footcite{wang2021concordia}:
+            \begin{itemize}
+                \item Concurrency control and multicast offloaded to network switch.
+                \item Authors claim this is more scalable (?)
+            \end{itemize}
+        }
+    \end{itemize}
+    \footnote{
+        Ramesh., ``SNIC-DSM: SmartNIC based DSM Infrastructure for Heterogeneous-ISA Machines''
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Literature Review: (Endo, Sato, \& Taura. 2020)\footcite{EndoWataru2020MADD}}
+    \begin{itemize}
+        \item MRMW: use timestamps to store reader ``intervals''.
+        \item {
+            Introduces the home-migration concept:
+            \begin{itemize}
+                \item At commit, make the CN the home node instead of invalidating the home node.
+                \item This removes communications needed for diff-merging at home node -- this can be done locally.
+                \item No support for multiple home nodes.
+            \end{itemize}
+        }
+        \item {
+            No performance improvement over PGAS programming framework (OpenMPI).
+        }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Literature Review: (Endo, Sato, \& Taura. 2020)\footcite{EndoWataru2020MADD}}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{w12_slides_resources/menps.fig5.png}
+    \end{figure}
+\end{frame}
 
 % Page 1
 \begin{frame}
@@ -97,7 +221,8 @@
             w12_slides_resources/Fig-RwLockProtocol 2023-12-04 21_03_50.pdf
         }
     \end{figure}
-    Note: The blue arrow should be acknowledged by P3 -- forgot to put the ack. arrow in.
+    Note: The blue arrow should be acknowledged via commit by P3 to P1 --
+    forgot to put the ack. arrow in.
 \end{frame}
 
 % Page 5
@@ -124,6 +249,8 @@
             i.e., Instead of write-invalidate, perform acquire-invalidate.
         }
     \end{itemize}
+
+    This may require pages to be marked as CoW if the sharer wants also to act as a home node.
 \end{frame}
 
 % Page 6
@@ -134,15 +261,59 @@
         \item {
             Multi-home Protocol: instead of having one home at a time, have
             multiple homes (e.g., when writer commits) to prevent network bottleneck.
+            \begin{itemize}
+                \item Extra metadata can limit scalability (e.g., granularity of directories)
+            \end{itemize}
         }
         \item {
-            Auto-share: Mark pages shared via \texttt{/dev/rshm} as automatically
-            shared to some remote nodes such that 1-way communications suffice to
-            re-validate invalidated pages.
+            Auto-share: Automatically share pages at commit time using 1-way
+            communications.
             \begin{itemize}
                 \item Potential for communication reduction -- debatable.
             \end{itemize}
         }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why this design?}
+    \begin{itemize}
+        \item Largely inspired by DSPM\footcite{shan2017distributed}.
+        \item Removed arrows for enforced data duplication -- duplication is solely on-demand.
+        \item {
+            Introduces transitional state ``T'':
+            \begin{itemize}
+                \item Used to flag a page as unserviceable -- visible only at MN.
+                \item All read/write access to T-page is kept on hold until MN receives commit msg.
+                \item After commit, MN forwards queued R/W access to moved home.
+                \item This (at least) maintains RAW, WAW data dependency for whichever issue serialization.
+                \item Removing T allows stale data to be served -- violates RAW for better throughput.
+            \end{itemize}
+        }
+        \item Extensible (as mentioned in prior page).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why not this design?}
+    At the very least\dots
+    \begin{itemize}
+        \item {
+            De-coupled home and access-management nodes require:
+            \begin{itemize}
+                \item Each home node need to be MN-aware (easy).
+                \item {
+                    MN need to be home-aware (also easy with single-writer, but spatial complexity is a concern):
+                    \begin{itemize}
+                        \item Naive directory scheme is not scalable.
+                        \item Coarse directory scheme (e.g., SGI Origin 2000) is wasteful (but may be the fastest in practice).
+                        \item Distributed directory scheme may provide terrible latency.
+                        \item More sophisticated schemes are possible but needs work \& experimentation.
+                    \end{itemize}
+                }
+            \end{itemize}
+        }
+        \item Strict consistency limits throughput.
     \end{itemize}
 \end{frame}
 
@@ -155,7 +326,7 @@
             \begin{itemize}
                 \item {
                     Weak ordering architectures (e.g., ARMv8) more or less depends on
-                    compiler/interpreter to emit barriers as see fit \cite{Haynes_2022}.
+                    compiler/interpreter to emit barriers as see fit \footcite{Haynes_2022}.
                 }
                 \item {
                     Bad for usability/portability -- programs may need
