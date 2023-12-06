@@ -114,6 +114,8 @@
 \begin{frame}
     \frametitle{Literature Review: (Endo, Sato, \& Taura. 2020)\footcite{EndoWataru2020MADD}}
     \begin{itemize}
+        \item Eager Release Consistency.
+        \item Prob. using MSI coherence protocol? Authors did not mention it.
         \item MRMW: use timestamps to store reader ``intervals''.
         \item {
             Introduces the home-migration concept:
@@ -196,9 +198,9 @@
     Similar to a read-write lock where:
     \begin{itemize}
         \item Multiple readers can exist for a clean page -- the page is \textbf{shared}.
-        \item Only one write is allowed for a clean page -- the page becomes \textbf{exclusive}.
+        \item Only one writer is allowed for a clean page -- the page becomes \textbf{exclusive}.
         \item {
-            For one writer node to be allowed sole write access to some page, all other
+            For one writer node be allowed sole write access to some page, all other
             readers need to have their page cache invalidated.
         }
         \item {
@@ -209,6 +211,9 @@
             When the sole writer commits, it becomes the new home node which serves the
             updated page content.
         }
+        \item {
+            Invalidates reader must fetch from MN for read access, which maintains RAW ordering.
+        }
     \end{itemize}
 \end{frame}
 
@@ -218,11 +223,9 @@
     \begin{figure}
         \centering
         \includegraphics[width=\linewidth]{
-            w12_slides_resources/Fig-RwLockProtocol 2023-12-04 21_03_50.pdf
+            w12_slides_resources/Fig-RwlockProtocol 2023-12-06 19_05_06.pdf
         }
     \end{figure}
-    Note: The blue arrow should be acknowledged via commit by P3 to P1 --
-    forgot to put the ack. arrow in.
 \end{frame}
 
 % Page 5
@@ -272,6 +275,12 @@
                 \item Potential for communication reduction -- debatable.
             \end{itemize}
         }
+        \item {
+            Request aggregation: Aggregate RDMA requests for optimal RDMA transfer performance.
+            \begin{itemize}
+                \item Need to be coherent with program sequence!
+            \end{itemize}
+        }
     \end{itemize}
 \end{frame}
 
@@ -286,7 +295,7 @@
                 \item Used to flag a page as unserviceable -- visible only at MN.
                 \item All read/write access to T-page is kept on hold until MN receives commit msg.
                 \item After commit, MN forwards queued R/W access to moved home.
-                \item This (at least) maintains RAW, WAW data dependency for whichever issue serialization.
+                \item This (at least) maintains RAW, WAW data dependency for whichever interleaving issues.
                 \item Removing T allows stale data to be served -- violates RAW for better throughput.
             \end{itemize}
         }
@@ -313,7 +322,9 @@
                 }
             \end{itemize}
         }
-        \item Strict consistency limits throughput.
+        \item {
+            Strict consistency limits throughput.
+        }
     \end{itemize}
 \end{frame}
 
@@ -358,6 +369,53 @@
         }
         \item {
             Further work needed to see how to adapt these protocols for weaker consistency models.
+            \begin{itemize}
+                \item Low-hanging fruit: TSO
+                \item Allowing read requests to be served for T-pages @ MN: W$\rightarrow$R violation.
+                \item {
+                    Allowing read requests to be served via non-MN homes: also W$\rightarrow$R violation
+                    (exploits a race condition between write msg and invalidation msg).
+                }
+                \item Request workers work on one request at a time: no R$\rightarrow$W violation.
+                \item W$\rightarrow$W violation simply cannot happen -- they always serialize @ MN.
+            \end{itemize}
+        }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Summary}
+    \begin{itemize}
+        \item {
+            Based on MSI coherence protocol, with possible T-state extension.
+            \begin{itemize}
+                \item T-state can be instead implemented as an additional flag parallel to MSI FSM.
+                \item T-pages cannot be serviced by MN -- all read/write requests blocked.
+            \end{itemize}
+        }
+        \item {
+            One consistency model (for now): sequential consistency.
+            \begin{itemize}
+                \item Maintains RAW via T-state @ MN -- removing blocking on T-pages results in TSO.
+                % Reads issued before Write -- read requests received before write.
+                % Because RDMA QPs are FIFO, either read issued before or after write.
+                % Assuming one worker thread works on requests sequentially, naturally WAR is preserved.
+                % RAW is preserved because writes cannot be finished until commit message is received.
+                % During which, T-state pages are blocked from being serviced.
+                % This do introduce a semaphore-like situation, however...
+                \item Maintains WAR via sequentially worked RDMA RQ.
+                \item Maintains WAW via single-writer.
+            \end{itemize}
+        }
+        \item {
+            Two consistency protocols:
+            \begin{itemize}
+                \item RwLock consistency protocol only allows read-only sharing.
+                \item {
+                    Acq-Rel consistency protocol differentiates non-committal writes,
+                    allows proc-local writable sharing.
+                }
+            \end{itemize}
         }
     \end{itemize}
 \end{frame}
