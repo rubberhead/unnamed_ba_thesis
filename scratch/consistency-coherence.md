@@ -19,7 +19,7 @@ In floating home protocols, some orchestration is needed for a stale node to be 
 
 A scope-consistency protocol is one where each sharing is associated with a scope -- only loads and stores within the scope's participants is guaranteed to respect the memory model.
 
-Many newer systems don't even expose writable data movement (e.g., Grappa) -- to write, you have to move compute towards data. Reading is no-problem though.
+Many newer systems don't even expose writable data-to-compute (e.g., Grappa) -- to write, you have to move compute towards data. Reading is no-problem though.
 
 [7]'s case for acquire-invalidate holds only for MRSW (I think?).
 
