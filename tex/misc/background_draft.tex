@@ -11,14 +11,13 @@ data-level parallelism \cite{BOOK.Hennessy_Patterson.CArch.2011},
 there have been a resurgence towards applying HPC techniques (e.g., DSM) for more
 efficient heterogeneous computation with more tightly-coupled heterogeneous nodes
 providing (hardware) acceleration for one another \cite{Cabezas_etal.GPU-SM.2015}
-\textcolor{red}{[ADD MORE CITATIONS]} Within the scope of one node,
-\emph{heterogeneous memory management (HMM)} enables the use of OS-controlled,
-unified memory view into the entire memory landscape across attached devices
+\textcolor{red}{[ADD MORE CITATIONS]} Orthogonally, within the scope of one
+motherboard, \emph{heterogeneous memory management (HMM)} enables the use of
+OS-controlled, unified memory view across both main memory and device memory
 \cite{WEB.NVIDIA.Harris.Unified_Memory_CUDA.2017}, all while using the same libc
 function calls as one would with SMP programming, the underlying complexities of
-memory ownership and locality managed by the OS kernel.
-
-Nevertheless, while HMM promises a distributed shared memory approach towards
+memory ownership and data placement automatically managed by the OS kernel.
+On the other hand, while HMM promises a distributed shared memory approach towards
 exposing CPU and peripheral memory, applications (drivers and front-ends) that
 exploit HMM to provide ergonomic programming models remain fragmented and
 narrowly-focused. Existing efforts in exploiting HMM in Linux predominantly focus
@@ -29,42 +28,43 @@ Limited effort have been done on incorporating HMM into other variants of
 accelerators in various system topologies.
 
 Orthogonally, allocation of hardware accelerator resources in a cluster computing
-environment becomes difficult when the required hardware acceleration resources
-of one workload cannot be easily determined and/or isolated. Within a cluster
-system there may exist a large amount of general-purpose worker nodes and limited
-amount of hardware-accelerated nodes. Further, it is possible that every workload
-performed on this cluster wishes for hardware acceleration from time to time,
-but never for a relatively long time. Many job scheduling mechanisms within a cluster
+environment becomes difficult when the required hardware accelerator resources
+of one workload cannot be easily determined and/or isolated as a ``stage'' of
+computation. Within a cluster system there may exist a large amount of
+general-purpose worker nodes and limited amount of hardware-accelerated nodes.
+Further, it is possible that every workload performed on this cluster asks for
+hardware acceleration from time to time, but never for a relatively long time.
+Many job scheduling mechanisms within a cluster
 \emph{move data near computation} by migrating the entire job/container between
 general-purpose and accelerator nodes \cites{Rodriguez_etal.HPC_Cluster_Migration.2019}
 {Oh_Kim.Container_Migration.2018}. This way of migration naturally incurs
-large overhead -- accelerator nodes which strictly perform in-memory computing
+large overhead -- accelerator nodes which strictly perform computation on data in memory
 without ever needing to touch the container's filesystem should not have to install
 the entire filesystem locally, for starters. Moreover, must \emph{all} computations be
-near data? \cite{Masouros_etal.Adrias.2023}, for example, shows that RDMA over
-fast network interfaces ($25 \times 8$Gbps) result negligible impact on tail latencies
-but high impact on throughput when bandwidth is maximized.
+performed near data? \cite{Masouros_etal.Adrias.2023}, for example, shows that RDMA over
+fast network interfaces (25 Gbps $\times$ 8), when compared to node-local setups,
+result in negligible impact on tail latencies but high impact on throughput when
+bandwidth is maximized.
 
 This thesis paper builds upon an ongoing research effort in implementing a
 tightly coupled cluster where HMM abstractions allow for transparent RDMA access
-from accelerator nodes to local data and data migration near computation, focusing
-on the effect of replacement policies on balancing the cost between near-data and
-far-data computation between home node and accelerator node. \textcolor{red}{
-Specifically, this paper explores the possibility of implementing shared page
-movement between home and accelerator nodes to enable efficient memory over-commit
-without the I/O-intensive swapping overhead.}
+from accelerator nodes to local data and migration of data near computation,
+leveraging different consistency model and coherency protocols to amortize the
+communication cost for shared data. \textcolor{red}{
+Specifically, this thesis explores the effect of memory consistency model and
+coherency protocol on memory-sharing between cluster nodes }
 
 \textcolor{red}{The rest of the chapter is structured as follows\dots}
 
 \section{Experiences from Software DSM}
-The majority of contributions to the study of software DSM systems come from the
-1990s \cites{Amza_etal.Treadmarks.1996}{Carter_Bennett_Zwaenepoel.Munin.1991}
+A majority of contributions to software DSM systems come from the 1990s
+\cites{Amza_etal.Treadmarks.1996}{Carter_Bennett_Zwaenepoel.Munin.1991}
 {Itzkovitz_Schuster_Shalev.Millipede.1998}{Hu_Shi_Tang.JIAJIA.1999}. These
 developments follow from the success of the Stanford DASH project in the late
-1980s -- a hardware distributed shared memory (i.e., NUMA) implementation of a
+1980s -- a hardware distributed shared memory (specifically NUMA) implementation of a
 multiprocessor that first proposed the \textit{directory-based protocol} for
 cache coherence, which stores the ownership information of cache lines to reduce
-unnecessary communication that prevented SMP processors from scaling out
+unnecessary communication that prevented previous multiprocessors from scaling out
 \cite{Lenoski_etal.Stanford_DASH.1992}.
 
 While developments in hardware DSM materialized into a universal approach to
@@ -73,23 +73,24 @@ Altra}\cite{WEB.Ampere..Ampere_Altra_Datasheet.2023}), software DSMs in clustere
 computing languished in favor of loosely-coupled nodes performing data-parallel
 computation, communicating via message-passing. Bandwidth limitations with the
 network interfaces of the late 1990s was insufficient to support the high traffic
-incurred by DSM and its programming model \cites{Werstein_Pethick_Huang.PerfAnalysis_DSM_MPI.2003}
+incurred by DSM and its programming model
+\cites{Werstein_Pethick_Huang.PerfAnalysis_DSM_MPI.2003}
 {Lu_etal.MPI_vs_DSM_over_cluster.1995}.
 
 New developments in network interfaces provides much improved bandwidth and latency
 compared to ethernet in the 1990s. RDMA-capable NICs have been shown to improve
-the training efficiency sixfold compared to distributed TensorFlow via RPC,
+the training efficiency sixfold compared to distributed \textit{TensorFlow} via RPC,
 scaling positively over non-distributed training \cite{Jia_etal.Tensorflow_over_RDMA.2018}.
-Similar results have been observed for Spark\cite{Lu_etal.Spark_over_RDMA.2014}
+Similar results have been observed for \textit{APACHE Spark}\cite{Lu_etal.Spark_over_RDMA.2014}
 \textcolor{red}{and what?}. Consequently, there have been a resurgence of interest
-in software DSM systems and their corresponding programming models
+in software DSM systems and programming models
 \cites{Nelson_etal.Grappa_DSM.2015}{Cai_etal.Distributed_Memory_RDMA_Cached.2018}.
 
 % Different to DSM-over-RDMA, we try to expose RDMA as device with HMM capability
 % i.e., we do it in kernel as opposed to in userspace. Accelerator node can access
 % local node's shared page like a DMA device do so via HMM.
 
-\subsection{Munin: Multiple Consistency Protocols}
+\subsection{Munin: Multi-Consistency Protocol}
 \textit{Munin}\cite{Carter_Bennett_Zwaenepoel.Munin.1991} is one of the older
 developments in software DSM systems. The authors of Munin identify that
 \textit{false-sharing}, occurring due to multiple processors writing to different
@@ -119,8 +120,38 @@ cheaply synchronize states between unshared address spaces -- a much desired
 property for highly scalable, loosely-coupled clustered systems.
 
 \subsection{Treadmarks: Multi-Writer Protocol}
-\textit{Treadmarks}\cite{Amza_etal.Treadmarks.1996} is a software DSM developed in
-1996
+\textit{Treadmarks}\cite{Amza_etal.Treadmarks.1996} is a software DSM system
+developed in 1996, which featured an intricate \textit{interval}-based
+multi-writer protocol that allows multiple nodes to write to the same page
+without false-sharing. The system follows a release-consistent memory model,
+which requires the use of either locks (via \texttt{acquire}, \texttt{release})
+or barriers (via \texttt{barrier}) to synchronize. Each \textit{interval}
+represents a time period in-between page creation, \texttt{release} to another
+processor, or a \texttt{barrier}; they also each correspond to a
+\textit{write notice}, which are used for page invalidation. Each \texttt{acquire}
+message is sent to the statically-assigned lock-manager node, which forwards the
+message to the last releaser. The last releaser computes the outstanding write
+notices and piggy-backs them back for the acquirer to invalidate its own cached
+page entry, thus signifying entry into the critical section. Consistency
+information, including write notices, intervals, and page diffs, are routinely
+garbage-collected which forces cached pages in each node to become validated.
+
+Compared to \textit{Treadmarks}, the system described in this paper uses a
+single-writer protocol, thus eliminating the concept of ``intervals'' --
+with regards to synchronization, each page can be either in-sync (in which case
+they can be safely shared) or out-of-sync (in which case they must be
+invalidated/updated). This comes with the following advantage:
+
+\begin{itemize}
+    \item Less metadata for consistency-keeping.
+    \item More adherent to the CPU-accelerator dichotomy model.
+    \item Much simpler coherence protocol, which reduces communication cost.
+\end{itemize}
+
+In view of the (still) disparate throughput and latency differences between local
+and remote memory access \cite{Cai_etal.Distributed_Memory_RDMA_Cached.2018},
+the simpler coherence protocol of single-writer protocol should provide better
+performance on the critical paths of remote memory access.
 
 % The majority of contributions to DSM study come from the 1990s, for example
 % \textbf{[Treadmark, Millipede, Munin, Shiva, etc.]}. These DSM systems attempt to
@@ -129,6 +160,59 @@ property for highly scalable, loosely-coupled clustered systems.
 % DSM systems and applications that expose a \emph{(partitioned) global address space},
 % they were nevertheless constrained by the limitations in NIC transfer rate and
 % bandwidth, and the concept of DSM failed to take off (relative to cluster computing).
+
+\subsection{Hotpot: Single-Writer \& Data Replication}
+Newer works such as \textit{Hotpot}\cite{Shan_Tsai_Zhang.DSPM.2017} apply
+distributed shared memory techniques on persistent memory to provide
+``transparent memory accesses, data persistence, data reliability, and high
+availability''. Leveraging on persistent memory devices allow DSM applications
+to bypass checkpoints to block device storage \cite{Shan_Tsai_Zhang.DSPM.2017},
+ensuring both distributed cache coherence and data reliability at the same time
+\cite{Shan_Tsai_Zhang.DSPM.2017}.
+
+We specifically discuss the single-writer portion of its coherence protocol. The
+data reliability guarantees proposed by the \textit{Hotpot} system requires each
+shared page to be replicated to some \textit{degree of replication}. Nodes
+who always store latest replication of shared pages are referred to as
+``owner nodes'', which arbitrate other nodes to store more replications in order
+to reach the degree of replication quota. At acquisition time, the acquiring node
+asks the access-management node for single-writer access to shared page,
+who grants it if no other critical section exists, alongside list of current
+owner nodes. At release time, the releaser first commits its changes to all owner
+nodes which, in turn, commits its received changes across lesser sharers to
+achieve the required degree of replication. These two operations are all
+acknowledged back in reverse order. Once all acknowledgements are received from
+owner nodes by commit node, the releaser tells them to delete their commit logs
+and, finally, tells the manager node to exit critical section.
+
+The required degree of replication and logged commit transaction until explicit
+deletion facilitate crash recovery at the expense of worse performance over
+release-time I/O. While the study of crash recovery with respect to shared
+memory systems is out of the scope of this thesis, this paper provides a good
+framework for a \textbf{correct} coherence protocol for a single-writer,
+multiple-reader shared memory system, particularly when the protocol needs to
+cater for a great variety of nodes each with their own memory preferences (e.g.,
+write-update vs. write-invalidate, prefetching, etc.).
+
+\subsection{MENPS: A Return to DSM}
+MENPS\cite{Endo_Sato_Taura.MENPS_DSM.2020} leverages new RDMA-capable
+interconnects as a proof-of-concept that DSM systems and programming models can
+be as efficient as \textit{partitioned global address space} (PGAS) using today's
+network interfaces. It builds upon \textit{TreadMark}'s
+\cite{Amza_etal.Treadmarks.1996} coherence protocol and crucially alters it to
+a \textit{floating home-based} protocol, based on the insight that diff-transfers
+across the network is comparatively costly compared to RDMA intrinsics -- which
+implies preference towards local diff-merging. The home node then acts as the
+data supplier for every shared page within the system.
+
+Compared to PGAS frameworks (e.g., MPI), experimentation over a subset of
+\textit{NAS Parallel Benchmarks} shows that MENPS can obtain comparable speedup
+in some of the computation tasks, while achieving much
+better productivity due to DSM's support for transparent caching, etc.
+\cite{Endo_Sato_Taura.MENPS_DSM.2020}. These results back up their claim that
+DSM systems are at least as viable as traditional PGAS/message-passing frameworks
+for scientific computing, also corroborated by the resurgence of DSM studies
+later on\cite{Masouros_etal.Adrias.2023}.
 
 \section{HPC and Partitioned Global Address Space}
 Improvement in NIC bandwidth and transfer rate allows for applications that expose
